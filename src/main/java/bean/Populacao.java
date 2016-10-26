@@ -1,45 +1,55 @@
 package bean;
 
+import com.google.common.base.Function;
+import com.google.common.collect.ImmutableSortedSet;
+import com.google.common.collect.Ordering;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Slf4j
 public class Populacao {
 
-    private Individuo[] individuos;
+    private List<Individuo> individuoList;
 
-    @Getter @Setter
+    @Getter
+    @Setter
     private int tamPopulacao;
 
     //cria uma população com indivíduos aleatórios
     public Populacao(int numGenes, int tamPop) {
         tamPopulacao = tamPop;
-        individuos = new Individuo[tamPop];
-        for (int i = 0; i < individuos.length; i++) {
-            individuos[i] = new Individuo(numGenes);
+        individuoList = new ArrayList<>(tamPop);
+
+        for (int i = 0; i < tamPop; i++) {
+            individuoList.add(new Individuo(numGenes));
         }
     }
 
     //cria uma população com indivíduos sem valor, será composto posteriormente
     public Populacao(int tamPop) {
         tamPopulacao = tamPop;
-        individuos = new Individuo[tamPop];
-        for (int i = 0; i < individuos.length; i++) {
-            individuos[i] = null;
+        individuoList = new ArrayList<>(tamPop);
+
+        for (int i = 0; i < tamPop; i++) {
+            Individuo individuo = null;
+            individuoList.add(individuo);
         }
     }
 
     //coloca um indivíduo em uma certa posição da população
     public void setIndividuo(Individuo individuo, int posicao) {
-        individuos[posicao] = individuo;
+        individuoList.add(posicao, individuo);
     }
 
     //coloca um indivíduo na próxima posição disponível da população
     public void setIndividuo(Individuo individuo) {
-        for (int i = 0; i < individuos.length; i++) {
-            if (individuos[i] == null) {
-                individuos[i] = individuo;
+        for (Individuo indiv : individuoList) {
+            if (indiv == null) {
+                individuoList.set(individuoList.indexOf(indiv), individuo);
                 return;
             }
         }
@@ -47,40 +57,40 @@ public class Populacao {
 
     //verifica se algum indivíduo da população possui a solução
     public boolean temSolucao(String solucao) {
-        Individuo i = null;
-        for (int j = 0; j < individuos.length; j++) {
-            if (individuos[j].getGenes().equals(solucao)) {
-                i = individuos[j];
+        Individuo individuo = null;
+        for (Individuo indiv : individuoList) {
+            if (indiv.getGenes().equals(solucao)) {
+                individuo = indiv;
                 break;
             }
         }
-        if (i == null) {
+
+        if (individuo == null) {
             return false;
         }
         return true;
     }
 
-    //ordena a população pelo valor de aptidão de cada indivíduo, do maior valor para o menor, assim se eu quiser obter o melhor indivíduo desta população, acesso a posição 0 do array de indivíduos
+    //ordena a população pelo valor de aptidão de cada indivíduo,
+    // do maior valor para o menor, assim se eu quiser obter o melhor indivíduo desta população,
+    // acesso a posição 0 do array de indivíduos
     public void ordenaPopulacao() {
-        boolean trocou = true;
-        while (trocou) {
-            trocou = false;
-            for (int i = 0; i < individuos.length - 1; i++) {
-                if (individuos[i].getAptidao() < individuos[i + 1].getAptidao()) {
-                    Individuo temp = individuos[i];
-                    individuos[i] = individuos[i + 1];
-                    individuos[i + 1] = temp;
-                    trocou = true;
-                }
-            }
-        }
+        individuoList = Ordering.natural().reverse()
+                .onResultOf(new Function<Individuo, Integer>() {
+                    @Override
+                    public Integer apply(Individuo request) {
+                        return request.getAptidao();
+                    }
+                })
+                .immutableSortedCopy(individuoList);
     }
 
     //número de indivíduos existentes na população
     public int getNumIndividuos() {
         int num = 0;
-        for (int i = 0; i < individuos.length; i++) {
-            if (individuos[i] != null) {
+
+        for (Individuo individuo : individuoList) {
+            if (individuo != null) {
                 num++;
             }
         }
@@ -88,6 +98,6 @@ public class Populacao {
     }
 
     public Individuo getIndivduo(int pos) {
-        return individuos[pos];
+        return individuoList.get(pos);
     }
 }

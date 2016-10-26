@@ -1,6 +1,7 @@
 package bean;
 
 import logic.Algoritimo;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -8,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.Random;
 
 @Slf4j
+@EqualsAndHashCode
 public class Individuo {
 
     @Getter @Setter

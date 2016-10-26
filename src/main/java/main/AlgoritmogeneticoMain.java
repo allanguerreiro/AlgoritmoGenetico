@@ -10,7 +10,6 @@ public class AlgoritmogeneticoMain {
     public static void main(String[] args) {
 
         //Define a solução
-//        Algoritimo.setSolucao("Algorítimos Genéticos, AGs, são métodos de busca inspirados na evolução dos seres vivos, introduzidos por John Holland e popularizados por um de seus alunos, David Goldberg, seguem o princípio da seleção natural e sobrevivência dos mais aptos, segundo Charles Darwin.");
         Algoritimo.setSolucao("Está foda para o Vasco.");
         //Define os caracteres existentes
         Algoritimo.setCaracteres("!,.:;?áÁãÃâÂõÕôÔóÓéêíÉÊQWERTYUIOPASDFGHJKLÇZXCVBNMqwertyuiopasdfghjklçzxcvbnm1234567890 ");
