@@ -114,22 +114,6 @@ public class TravelingSalesmanMainTest {
             super(representation);
         }
 
-//        public double fitness() {
-//            int result = 0;
-//            List<Integer> decoded = decode(genes);
-//            for (int i = 0; i < decoded.size(); i++) {
-//                int value = new Integer(decoded.get(i));
-//                if (value != i) {
-//                    // bad position found
-//                    log.info("Valor " + value);
-//                    result += Math.abs(value - i);
-//                }
-//            }
-//            // the most fitted chromosome is the one with minimal error
-//            // therefore we must return negative value
-//            return -result;
-//        }
-
         public double fitness() {
             int result = 0;
             List<Integer> decoded = decode(genes);
@@ -138,8 +122,6 @@ public class TravelingSalesmanMainTest {
                 result += value;
             }
             log.info("Resultado " + result);
-            // the most fitted chromosome is the one with minimal error
-            // therefore we must return negative value
             return result;
         }
 
