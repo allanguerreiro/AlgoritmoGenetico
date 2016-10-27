@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 public class AlgoritmogeneticoMain {
 
     public static void main(String[] args) {
+        long startTime = System.currentTimeMillis();
 
         //Define a solução
         Algoritimo.setSolucao("Está foda para o Vasco.");
@@ -16,7 +17,7 @@ public class AlgoritmogeneticoMain {
         //taxa de crossover de 60%
         Algoritimo.setTaxaDeCrossover(0.6);
         //taxa de mutação de 3%
-        Algoritimo.setTaxaDeMutacao(0.3);
+        Algoritimo.setTaxaDeMutacao(0.05);
         //elitismo
         boolean eltismo = true;
         //tamanho da população
@@ -27,7 +28,7 @@ public class AlgoritmogeneticoMain {
         //define o número de genes do indivíduo baseado na solução
         int numGenes = Algoritimo.getSolucao().length();
 
-        //cria a primeira população aleatórioa
+        //cria a primeira população aleatória
         Populacao populacao = new Populacao(numGenes, tamPop);
 
         boolean temSolucao = false;
@@ -48,12 +49,16 @@ public class AlgoritmogeneticoMain {
             temSolucao = populacao.temSolucao(Algoritimo.getSolucao());
         }
 
+        // Get the end time for the simulation.
+        long endTime = System.currentTimeMillis();
+
         if (geracao == numMaxGeracoes) {
             log.info("Número Maximo de Gerações | " + populacao.getIndivduo(0).getGenes() + " " + populacao.getIndivduo(0).getAptidao());
         }
 
         if (temSolucao) {
             log.info("Encontrado resultado na geração " + geracao + " | " + populacao.getIndivduo(0).getGenes() + " (Aptidão: " + populacao.getIndivduo(0).getAptidao() + ")");
+            System.out.println("Total execution time: " + (endTime - startTime) + "ms");
         }
     }
 }

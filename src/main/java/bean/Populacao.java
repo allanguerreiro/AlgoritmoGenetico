@@ -1,7 +1,6 @@
 package bean;
 
 import com.google.common.base.Function;
-import com.google.common.collect.ImmutableSortedSet;
 import com.google.common.collect.Ordering;
 import lombok.Getter;
 import lombok.Setter;
@@ -13,6 +12,7 @@ import java.util.List;
 @Slf4j
 public class Populacao {
 
+    @Getter
     private List<Individuo> individuoList;
 
     @Getter
