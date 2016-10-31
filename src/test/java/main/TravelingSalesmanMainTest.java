@@ -4,10 +4,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.math3.genetics.*;
 import org.apache.commons.math3.util.Precision;
 import org.junit.Test;
+import util.AbstractMatrizDinamica;
+import util.MatrizDinamica;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
+import java.util.Map;
 
 /**
  * Created by allan on 26/10/16.
@@ -15,32 +17,23 @@ import java.util.Random;
 @Slf4j
 public class TravelingSalesmanMainTest {
 
-    public static final int DIMENSION = 20;
-    private static final int POPULATION_SIZE = 80;
-    private static final int NUM_GENERATIONS = 200;
     private static final double ELITISM_RATE = 0.2;
     private static final double CROSSOVER_RATE = 0.6;
     private static final double MUTATION_RATE = 0.08;
     private static final int TOURNAMENT_ARITY = 2;
-    private static Random gerador = new Random();
-
-    // numbers from 0 to N-1
-    private static List<Integer> genes = new ArrayList<Integer>();
-
-    static {
-        for (int i = 0; i < DIMENSION; i++) {
-            genes.add(i);
-        }
-    }
+    private static final int ROW = 10;
+    private static final int COLUMN = 5;
+    private static MatrizDinamica<String> genes;
+    private static Chromosome fittestChromosome;
+    private static Double menor = new Double(Double.MAX_VALUE);
 
     @Test
     public void test() {
         long startTime = System.currentTimeMillis();
 
-
         // initialize a new genetic algorithm
         GeneticAlgorithm geneticAlgorithm = new GeneticAlgorithm(
-                new OnePointCrossover<Integer>(),
+                new OrderedCrossover(),
                 CROSSOVER_RATE,
                 new RandomKeyMutation(),
                 MUTATION_RATE,
@@ -57,15 +50,15 @@ public class TravelingSalesmanMainTest {
 
             @Override
             public boolean isSatisfied(Population population) {
-                Chromosome fittestChromosome = population.getFittestChromosome();
+                Chromosome fittestChromosome = getFittestChromosome(population);
 
                 if (generation == 1 || generation % 10 == 0) {
-                    log.info("Generation " + generation + ": " + fittestChromosome.toString());
+                    log.info("Generation " + generation + ": " + fittestChromosome.getFitness());
                 }
                 generation++;
 
                 double fitness = fittestChromosome.fitness();
-                if (Precision.equals(fitness, 0.0, 1e-6)) {
+                if (fitness <= menor) {
                     return true;
                 } else {
                     return false;
@@ -74,8 +67,8 @@ public class TravelingSalesmanMainTest {
         };
 
         // best initial chromosome
-        Chromosome bestInitial = initial.getFittestChromosome();
-        log.info("Generation " + geneticAlgorithm.getGenerationsEvolved() + ": " + bestInitial.toString());
+        Chromosome bestInitial = getFittestChromosome(initial);
+        log.info("Generation " + geneticAlgorithm.getGenerationsEvolved() + ": " + bestInitial.getFitness());
 
         log.info("Starting evolution ...");
 
@@ -86,8 +79,9 @@ public class TravelingSalesmanMainTest {
         long endTime = System.currentTimeMillis();
 
         // best chromosome from the final population
-        Chromosome best = finalPopulation.getFittestChromosome();
-        log.info("Generation " + geneticAlgorithm.getGenerationsEvolved() + ": " + best.toString());
+        Chromosome best = getFittestChromosome(finalPopulation);
+
+        log.info("Generation " + geneticAlgorithm.getGenerationsEvolved() + ": " + best.getFitness());
         log.info("Total execution time: " + (endTime - startTime) + "ms");
     }
 
@@ -95,39 +89,45 @@ public class TravelingSalesmanMainTest {
      * Initializes a random population
      */
     private static ElitisticListPopulation randomPopulation() {
-        List<Chromosome> popList = new ArrayList<Chromosome>();
-        for (int i = 0; i < POPULATION_SIZE; i++) {
-            Chromosome randChrom = new MinPermutations(RandomKey.randomPermutation(DIMENSION));
+        List<Chromosome> popList = new ArrayList<>();
+        genes = MatrizDinamica.randomPopulation(ROW, COLUMN);
+
+        for (int i = 0; i < genes.getElementos().size(); i++) {
+            Chromosome randChrom = new StringChromosome(genes.getElementos().get(i));
             popList.add(randChrom);
         }
+
         return new ElitisticListPopulation(popList, popList.size(), ELITISM_RATE);
     }
 
-    /**
-     * Chromosomes representing a permutation of (0,1,2,...,DIMENSION-1).
-     * <p>
-     * The goal is to sort the sequence.
-     */
-    private static class MinPermutations extends RandomKey<Integer> {
+    private static Chromosome getFittestChromosome(Population population) {
+        for (Chromosome chromosome : population) {
+            if (chromosome.getFitness() < menor) {
+                menor = chromosome.getFitness();
+                fittestChromosome = chromosome;
+            }
+        }
 
-        public MinPermutations(List<Double> representation) {
+        return fittestChromosome;
+    }
+
+    /**
+     * String Chromosome represented by a list of characters.
+     */
+    public static class StringChromosome extends AbstractMatrizDinamica<String> {
+
+        public StringChromosome(Map<Integer, String> representation) {
             super(representation);
         }
 
         public double fitness() {
-            int result = 0;
-            List<Integer> decoded = decode(genes);
-            for (int i = 0; i < decoded.size(); i++) {
-                int value = new Integer(decoded.get(i));
-                result += value;
+            int fitness = 0; // start at 0; the best fitness
+            for (int i = 0; i < this.getElements().values().size(); i++) {
+                String teste = this.getElements().get(i).substring(31, this.getElements().get(i).length());
+                int distancia = Integer.parseInt(teste);
+                fitness += distancia;
             }
-            log.info("Resultado " + result);
-            return result;
-        }
-
-        @Override
-        public AbstractListChromosome<Double> newFixedLengthChromosome(List<Double> chromosomeRepresentation) {
-            return new MinPermutations(chromosomeRepresentation);
+            return fitness;
         }
     }
 }
